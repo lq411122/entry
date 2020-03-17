@@ -29,4 +29,4 @@ if __FIST_TIME:
 if __name__ == '__main__':
     logger.error("test-error")
     logger.info("test-info")
-    logger.warn("test-warn")
+    logger.warning("test-warn")

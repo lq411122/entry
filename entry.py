@@ -4,7 +4,7 @@ import traceback
 import subprocess
 from subprocess import Popen
 from LoggerHelper import logger
-from Configs import BASE_PATH, ARGS, PROCESS_ID, ROOT_URL, INDEX_URL, PORT
+from Configs import BASE_PATH,PROCESS_ID, ROOT_URL, INDEX_URL, PORT, CODE_URL
 import webbrowser
 import requests
 import win32api, win32con
@@ -12,7 +12,6 @@ import win32api, win32con
 
 # 检查服务进程是否启动，默认尝试1次
 def check_server(retry=1):
-    print('检查服务是否启动 ...')
     ret = False
     while retry > 0 and not ret:
         try:
@@ -28,7 +27,6 @@ def check_server(retry=1):
             logger.error('发现未处理的异常：%s' % exp)
             ret = False
         retry = retry - 1
-    print('%s' % ret)
     return ret
 
 
@@ -36,20 +34,20 @@ def check_server(retry=1):
 def start_server():
     ret = None
     try:
-        print('检查进程是否存在 ...')
         ret = os.system('netstat -an | find "%d"' % PORT)
         if ret == 0:
             ret = os.system('tasklist | find "%s"' % PROCESS_ID)
             if ret == 0:
-                print('强制结束老进程 ...')
                 os.system('TASKKILL /F /IM %s' % PROCESS_ID)
                 time.sleep(0.5)
-        url = os.path.join(BASE_PATH, '..', 'Hello', r'Hello.exe')
+        url = CODE_URL
         logger.info('开始启动服务 ... %s' % url)
-        print('开始启动服务 ... ')
+
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        ret = Popen('%s %s' % (url, ARGS), startupinfo=startupinfo)
+        # ret = Popen('%s %s' % (url, ARGS), startupinfo=startupinfo)
+        ret = Popen(r'code.exe', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True,  startupinfo=startupinfo)
+
     except Exception as exp:
         logger.error('Error : %s, Detail : %s' % (exp, traceback.format_exc()))
     return ret
@@ -61,8 +59,8 @@ def start_url(url):
     try:
         logger.info('start url ... %s' % url)
         ret = webbrowser.open(url, new=2, autoraise=True)
-        time.sleep(2)
-        maxWindow()
+        # time.sleep(2)
+        # maxWindow()
     except Exception as exp:
         logger.error('Error : %s, Detail : %s' % (exp, traceback.format_exc()))
     return ret
@@ -70,8 +68,8 @@ def start_url(url):
 
 # 浏览器中全屏，使用按键进行模拟
 def maxWindow():
-    win32api.keybd_event(122,0,0,0) #F11
-    win32api.keybd_event(122, 0, win32con.KEYEVENT_KEYUP,0) #Realize the F11 button
+    win32api.keybd_event(122, 0, 0, 0)  # F11
+    win32api.keybd_event(122, 0, win32con.KEYEVENT_KEYUP,0)  # Realize the F11 button
 
 
 if __name__ == "__main__":
@@ -79,12 +77,10 @@ if __name__ == "__main__":
     if check_server():
         start_url(INDEX_URL)
     elif start_server() is not None:
-        if check_server(30):
+        if check_server(retry=3):
             start_url(INDEX_URL)
         else:
             logger.error('ERROR : 服务未成功启动，请手工杀死进程LotServer.exe，再尝试启动！')
-            print('ERROR : 服务未成功启动，请手工杀死进程LotServer.exe，再尝试启动！')
     else:
-        print('ERROR : 服务启动过程中发生异常，请先手工清理相关进程，再尝试启动！')
         start_url(os.path.join(BASE_PATH, 'error.html'))
     logger.info('end start!')

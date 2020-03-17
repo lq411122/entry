@@ -13,7 +13,6 @@ if not BASE_PATH in sys.path:
     sys.path.append(BASE_PATH)
 
 PORT = 8080
-ARGS = 'runserver --noreload 0.0.0.0:%d' % PORT
 PROCESS_ID = 'code.exe'
 
 APP_LOGGING = {
@@ -22,7 +21,6 @@ APP_LOGGING = {
     'formatters': {  # 格式器
         'standard': {  # 详细
             'format': '[%(asctime)s|%(levelname)s|%(processName)s|%(module)s|%(lineno)s]: %(message)s',
-            #'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
     },
@@ -46,6 +44,8 @@ APP_LOGGING = {
     },
 }
 
-ROOT_URL = 'http://0.0.0.0:8800/'
+ROOT_URL = 'http://localhost:8080/'
 # 主程序中主页的url
-INDEX_URL = '%sstatic/index.html' % ROOT_URL
+INDEX_URL = ROOT_URL
+#  code.exe路径
+CODE_URL = os.path.join(BASE_PATH, "..")
