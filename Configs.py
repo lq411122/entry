@@ -14,6 +14,7 @@ if not BASE_PATH in sys.path:
 
 PORT = 8080
 PROCESS_ID = 'code.exe'
+ARGS = r'code.exe'
 
 APP_LOGGING = {
     'version': 1,
@@ -47,5 +48,3 @@ APP_LOGGING = {
 ROOT_URL = 'http://localhost:8080/'
 # 主程序中主页的url
 INDEX_URL = ROOT_URL
-#  code.exe路径
-CODE_URL = os.path.join(BASE_PATH, "..")

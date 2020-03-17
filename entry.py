@@ -4,7 +4,7 @@ import traceback
 import subprocess
 from subprocess import Popen
 from LoggerHelper import logger
-from Configs import BASE_PATH,PROCESS_ID, ROOT_URL, INDEX_URL, PORT, CODE_URL
+from Configs import BASE_PATH, PROCESS_ID, ROOT_URL, INDEX_URL, PORT, ARGS
 import webbrowser
 import requests
 import win32api, win32con
@@ -40,15 +40,18 @@ def start_server():
             if ret == 0:
                 os.system('TASKKILL /F /IM %s' % PROCESS_ID)
                 time.sleep(0.5)
-        url = CODE_URL
-        logger.info('开始启动服务 ... %s' % url)
 
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        # ret = Popen('%s %s' % (url, ARGS), startupinfo=startupinfo)
-        ret = Popen(r'code.exe', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True,  startupinfo=startupinfo)
+        ret = Popen(ARGS,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    shell=True,
+                    startupinfo=startupinfo)
 
     except Exception as exp:
+        print('Error : %s, Detail : %s' % (exp, traceback.format_exc()))
         logger.error('Error : %s, Detail : %s' % (exp, traceback.format_exc()))
     return ret
 
@@ -77,7 +80,7 @@ if __name__ == "__main__":
     if check_server():
         start_url(INDEX_URL)
     elif start_server() is not None:
-        if check_server(retry=3):
+        if check_server(retry=2):
             start_url(INDEX_URL)
         else:
             logger.error('ERROR : 服务未成功启动，请手工杀死进程LotServer.exe，再尝试启动！')
